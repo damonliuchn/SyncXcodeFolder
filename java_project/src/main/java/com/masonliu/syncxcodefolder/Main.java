@@ -12,16 +12,19 @@ import java.util.List;
  * Created by liumeng on 16/4/17.
  */
 public class Main {
-    //public static final String PROJ_PATH = "/Users/admin/Project/XC_WORK/TestOC/TestOC.xcodeproj";
-    public static final String PROJ_PATH = "/Users/admin/Project/XC_WORK/OptimusPrime/YouCaiRestaurant.xcodeproj";
+    public static String PROJ_PATH = "/Users/admin/Project/XC_WORK/OptimusPrime/YouCaiRestaurant.xcodeproj";
 
-    static String pbxFilePath = PROJ_PATH + "/project.pbxproj";
+    static String pbxFilePath;
     static List<PBXGroup> list = new ArrayList<>();
     static String fileRefSection;
     static String groupSection;
     static String all;
 
     public static void main(String[] args) {
+        if (args != null && args.length == 1) {
+            PROJ_PATH = args[0];
+        }
+        pbxFilePath = PROJ_PATH + "/project.pbxproj";
         //解析section
         all = StringUtil.file2String(new File(pbxFilePath), null);
         fileRefSection = StringUtil.getPatternStr(all, "Begin\\sPBXFileReference\\ssection.*?End\\sPBXFileReference\\ssection", 0, 0);
@@ -88,14 +91,12 @@ public class Main {
                     newAllPath = new File(PROJ_PATH).getParentFile().getAbsolutePath() + "/" + rootPath + "/" + fileName;
                 }
                 if (oldAllPath == null || oldAllPath.equals(newAllPath)) {
-                    if (oldAllPath == null) {
-                        System.out.println("!!!!!oldAllPath == null maybe " + fileName + " is a folder");
-                    }
+                    System.out.println("!!!!!oldAllPath == null or oldAllPath.equals(newAllPath) :" + newAllPath);
                 } else {
                     //移动文件
                     boolean a = FileUtil.move(oldAllPath, newAllPath);
                     if (!a) {
-                        System.out.println("!!!!!move file error :" + oldAllPath + "\n" + newAllPath);
+                        System.out.println("!!!!!move file error :" + oldAllPath + "-" + newAllPath);
                     } else {
                         if (new File(oldAllPath).getParentFile().listFiles().length == 0) {
                             new File(oldAllPath).getParentFile().delete();
