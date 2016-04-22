@@ -1,10 +1,13 @@
 /.idea
 /.gradle
 /local.properties
+/*/build/classes
+/*/build/dependency-cache
+/*/build/resources
+/*/build/tmp
 /build
 /*/fabric.properties
 /*/SyamtabFileUploaderLog.txt
-/*/build
 *.apk
 *.iml
 
