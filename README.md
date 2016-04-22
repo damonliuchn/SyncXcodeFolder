@@ -12,6 +12,10 @@ Downlod [java_project.jar](https://github.com/MasonLiuChn/SyncXcodeFolder/raw/ma
 java -jar java_project.jar /Users/xxx/xxx.xcodeproj
 ```
 
+#Thank:
+
+[XcodeProjectJavaAPI](https://github.com/sap-production/XcodeProjectJavaAPI)
+
 #Contact me:
 
 Blog:http://blog.csdn.net/masonblog
