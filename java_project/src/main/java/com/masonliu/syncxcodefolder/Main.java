@@ -12,7 +12,7 @@ import java.util.List;
  * Created by liumeng on 16/4/17.
  */
 public class Main {
-    public static String PROJ_PATH = "/Users/admin/Project/XC_WORK/OptimusPrime/YouCaiRestaurant.xcodeproj";
+    public static String PROJ_PATH = "/Users/admin/Project/XC_WORK/Megatron/YouCaiSupplier.xcodeproj";
 
     static String pbxFilePath;
     static List<PBXGroup> list = new ArrayList<>();
@@ -21,6 +21,7 @@ public class Main {
     static String all;
 
     public static void main(String[] args) {
+        System.out.println("ddddddddddddddddddddddd");
         if (args != null && args.length == 1) {
             PROJ_PATH = args[0];
         }
@@ -31,8 +32,10 @@ public class Main {
         groupSection = StringUtil.getPatternStr(all, "Begin\\sPBXGroup\\ssection.*?End\\sPBXGroup\\ssection", 0, 0);
         JAXBPlistParser jaxbPlistParser = new JAXBPlistParser();
         try {
-            jaxbPlistParser.convert(pbxFilePath, PROJ_PATH + "project.xml");
-            Plist plist = jaxbPlistParser.load(PROJ_PATH + "project.xml");
+            String destination = PROJ_PATH + "/xcshareddata/project.xml";
+            System.out.println(destination);
+            jaxbPlistParser.convert(pbxFilePath, destination);
+            Plist plist = jaxbPlistParser.load(destination);
             Dict dict = plist.getDict().getDict("objects");
             for (Dict.Entry<String, Object> entry : dict.entrySet()) {
                 Dict value = (Dict) entry.getValue();
@@ -71,40 +74,44 @@ public class Main {
             if (childGroup == null) {
                 //文件 修改成 去掉 name, 然后 path 就等于filename
                 String item = StringUtil.getPatternStr(fileRefSection, key + ".*?}", 0, 0);
-                //if (oldPath.contains("/")) {
-                String fileName = StringUtil.getPatternStr(item, "\\*.*?\\*", 2, 2);
-                String fileNameTmp = fileName;
-                //去除name
-                String itemTmp = item.replaceAll("name.*?;", "");
-                //替换path
-                if (fileName.contains("+") || fileName.contains(" ")) {
-                    fileNameTmp = "\"" + fileName + "\"";
-                }
-                itemTmp = itemTmp.replaceAll("path.*?;", "path = " + fileNameTmp + ";");
-                all = all.replace(item, itemTmp);
-                StringUtil.string2File(all, pbxFilePath);
+                if (item != null) {
+                    //if (oldPath.contains("/")) {
+                    String fileName = StringUtil.getPatternStr(item, "\\*.*?\\*", 2, 2);
+                    String fileNameTmp = fileName;
+                    //去除name
+                    if (item == null) {
+                        System.out.println("ddd");
+                    }
+                    String itemTmp = item.replaceAll("name.*?;", "");
+                    //替换path
+                    if (fileName.contains("+") || fileName.contains(" ")) {
+                        fileNameTmp = "\"" + fileName + "\"";
+                    }
+                    itemTmp = itemTmp.replaceAll("path.*?;", "path = " + fileNameTmp + ";");
+                    all = all.replace(item, itemTmp);
+                    StringUtil.string2File(all, pbxFilePath);
 
-                //移动文件
-                String oldAllPath = FileUtil.findFile(new File(PROJ_PATH).getParentFile().getAbsolutePath() + "/" + rootPath, fileName, true);
-                String newAllPath = new File(PROJ_PATH).getParentFile().getAbsolutePath() + "/" + rootPath + "/" + newPath + "/" + fileName;
-                if (newPath.equals("")) {
-                    newAllPath = new File(PROJ_PATH).getParentFile().getAbsolutePath() + "/" + rootPath + "/" + fileName;
-                }
-                if (oldAllPath == null || oldAllPath.equals(newAllPath)) {
-                    System.out.println("!!!!!oldAllPath == null or oldAllPath.equals(newAllPath) :" + newAllPath);
-                } else {
                     //移动文件
-                    boolean a = FileUtil.move(oldAllPath, newAllPath);
-                    if (!a) {
-                        System.out.println("!!!!!move file error :" + oldAllPath + "-" + newAllPath);
+                    String oldAllPath = FileUtil.findFile(new File(PROJ_PATH).getParentFile().getAbsolutePath() + "/" + rootPath, fileName, true);
+                    String newAllPath = new File(PROJ_PATH).getParentFile().getAbsolutePath() + "/" + rootPath + "/" + newPath + "/" + fileName;
+                    if (newPath.equals("")) {
+                        newAllPath = new File(PROJ_PATH).getParentFile().getAbsolutePath() + "/" + rootPath + "/" + fileName;
+                    }
+                    if (oldAllPath == null || oldAllPath.equals(newAllPath)) {
+                        System.out.println("!!!!!oldAllPath == null or oldAllPath.equals(newAllPath) :" + newAllPath);
                     } else {
-                        if (new File(oldAllPath).getParentFile().listFiles().length == 0) {
-                            new File(oldAllPath).getParentFile().delete();
+                        //移动文件
+                        boolean a = FileUtil.move(oldAllPath, newAllPath);
+                        if (!a) {
+                            System.out.println("!!!!!move file error :" + oldAllPath + "-" + newAllPath);
+                        } else {
+                            if (new File(oldAllPath).getParentFile().listFiles().length == 0) {
+                                new File(oldAllPath).getParentFile().delete();
+                            }
+                            System.out.println(oldAllPath + "---" + newAllPath);
                         }
-                        System.out.println(oldAllPath + "---" + newAllPath);
                     }
                 }
-                // }
             } else {
                 //文件夹,修改文件夹的去掉 name, path 就等于name
                 String item = StringUtil.getPatternStr(groupSection, key + ".*?}", 0, 0);
